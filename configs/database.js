@@ -1,11 +1,16 @@
 const mongoose = require("mongoose");
 
-async function connectDB(){
-    try{
-        await mongoose.connect("mongodb://localhost:27017/food-order");
-        console.log("Connect database success");
-    }catch(error){
-        console.log("Connect database fail: ", error.message);
-    }
-}
+const connectDB = async () => {
+  try {
+    await mongoose.connect(process.env.MONGO_URI || "mongodb://localhost:27017/foodorder", {
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
+    });
+    console.log("Kết nối MongoDB thành công");
+  } catch (error) {
+    console.error("Lỗi kết nối MongoDB:", error);
+    process.exit(1);
+  }
+};
+
 module.exports = connectDB;
