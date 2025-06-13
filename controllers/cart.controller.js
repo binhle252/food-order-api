@@ -53,25 +53,25 @@ module.exports = {
 
         return res.status(200).json(cart);
     },
-    updateItem: async(req, res)=>{
-        const account_id = req.params.account_id;
-        const item_id = req.params.item_id;
-        const quantity = req.body.quantity;
+    updateItem: async (req, res) => {
+    const { account_id, item_id } = req.params;
+    const { quantity } = req.body;
 
-        let cart = await cartModel.findOne({
-            is_order: false,
-            account_id: account_id
-        });
+    const cart = await cartModel.findOne({
+        is_order: false,
+        account_id: account_id
+    });
 
-        const items = cart.items.map((v)=>{
-            if (v._id.toString() == item_id){
-                v.quantity = quantity;
-                return v;
-            }
-            return v;
-        })
-        cart = await cartModel.findByIdAndUpdate(cart._id, {items}, {new: true});
+    if (!cart) return res.status(404).json({ message: "Không tìm thấy giỏ hàng" });
 
-        return res.status(200).json(cart);
-    }
+    const item = cart.items.find(i => i._id.toString() === item_id);
+    if (!item) return res.status(404).json({ message: "Không tìm thấy món trong giỏ" });
+
+    item.quantity = quantity;
+
+    await cart.save(); // Mongoose sẽ ghi nhận sự thay đổi
+
+    return res.status(200).json(cart);
+}
+
 }
