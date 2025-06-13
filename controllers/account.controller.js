@@ -80,4 +80,25 @@ const getProfile = async (req, res) => {
   }
 };
 
-module.exports = { register, login, getAccounts, getProfile };
+// controllers/account.controller.js
+
+const updateProfile = async (req, res) => {
+  try {
+    const { phone, address } = req.body;
+
+    const updatedAccount = await accountModel.findByIdAndUpdate(
+      req.user.id,
+      { phone, address },
+      { new: true, select: "-password" }
+    );
+
+    return res.status(200).json({
+      message: "Cập nhật thông tin cá nhân thành công",
+      data: updatedAccount,
+    });
+  } catch (error) {
+    return res.status(500).json({ message: "Lỗi server", error: error.message });
+  }
+};
+
+module.exports = { register, login, getAccounts, getProfile, updateProfile };

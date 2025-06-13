@@ -1,31 +1,36 @@
-// middlewares/auth.middleware.js
 const jwt = require("jsonwebtoken");
 
 const authenticateToken = (req, res, next) => {
-  const authHeader = req.headers["authorization"];
+  const authHeader = req.headers.authorization;
   const token = authHeader && authHeader.split(" ")[1];
 
+  console.log("🔐 [authenticateToken] Token:", token);
+
   if (!token) {
-    return res.status(401).json({ message: "Không có token, truy cập bị từ chối" });
+    return res.status(401).json({ message: "Token không được cung cấp" });
   }
 
   try {
-    const secret = process.env.JWT_SECRET;
-    if (!secret) throw new Error("JWT_SECRET không được định nghĩa");
-
-    const decoded = jwt.verify(token, secret);
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    console.log("✅ [authenticateToken] Decoded:", decoded);
     req.user = decoded;
     next();
   } catch (error) {
-    return res.status(403).json({ message: "Token không hợp lệ", error: error.message });
+    console.error("❌ [authenticateToken] Error verifying token:", error.message);
+    return res.status(403).json({ message: "Token không hợp lệ hoặc đã hết hạn" });
   }
 };
 
-const authorizeRole = (roles) => (req, res, next) => {
-  if (!roles.includes(req.user.role)) {
-    return res.status(403).json({ message: "Không có quyền truy cập" });
-  }
-  next();
+const authorizeRole = (roles) => {
+  return (req, res, next) => {
+    console.log("🔒 [authorizeRole] Required roles:", roles);
+    console.log("👤 [authorizeRole] User role:", req.user?.role);
+
+    if (!roles.includes(req.user.role)) {
+      return res.status(403).json({ message: "Không có quyền truy cập" });
+    }
+    next();
+  };
 };
 
 module.exports = { authenticateToken, authorizeRole };
