@@ -1,6 +1,10 @@
 const { default: mongoose } = require("mongoose");
 
 const accountSchema = mongoose.Schema({
+    fullName: { 
+        type: String, 
+        required: true 
+    },
     username:{
         type: String,
         require: true,

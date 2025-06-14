@@ -1,79 +1,109 @@
 const orderModel = require("../models/order.model");
 const cartModel = require("../models/cart.model");
-const mongoose = require("mongoose");
 
 module.exports = {
-    createOrder: async(req,res)=>{
-        const body = req.body;
-        const order = await orderModel.create(body);
-        await cartModel.findByIdAndUpdate(body.cart_id, {is_order: true});
+  // Tạo đơn hàng từ cart
+  createOrder: async (req, res) => {
+    try {
+      const { customer, address, phone, total_money, cart_id } = req.body;
 
-        return res.status(200).json(order);
-    },
-    getOrder: async(req,res)=>{
-        const customer = req.query.customer;
-        const address = req.query.address;
-        const phone = req.query.phone;
-        const status = req.query.status;
+      if (!customer || !address || !phone || !total_money || !cart_id) {
+        return res.status(400).json({ message: "Thiếu thông tin đơn hàng." });
+      }
 
-        const body_query = {};
+      const cart = await cartModel.findById(cart_id).populate("items.food");
 
-        if (customer){
-            body_query.customer = {
-                $regex: ".*" + customer + ".*"
-            };
-        }
+      if (!cart || cart.is_order) {
+        return res.status(400).json({ message: "Giỏ hàng không hợp lệ hoặc đã thanh toán." });
+      }
 
-        if (address){
-            body_query.address = {
-                $regex: ".*" + address + ".*"
-            };
-        }
+      const order = await orderModel.create({
+        customer,
+        address,
+        phone,
+        total_money,
+        payment_method: "On delivery",
+        account_id: cart.account_id,
+        cart: {
+          items: cart.items.map((item) => ({
+            quantity: item.quantity,
+            food: {
+              _id: item.food._id,
+              name: item.food.name,
+              img: item.food.img,
+              price: item.food.price,
+            },
+          })),
+        },
+      });
 
-        if (phone){
-            body_query.phone = phone;
-        }
+      await cartModel.findByIdAndUpdate(cart_id, { is_order: true });
 
-        if (status){
-            body_query.status = status;
-        }
-        
-        const orders = await orderModel.find(body_query).populate({
-            path: "cart_id",
-            populate: [
-                {
-                    path: "account_id"
-                },
-                {
-                    path: "items.food"
-                }
-            ]
-        });
-
-        return res.status(200).json(orders);
-    },
-    getOrderByAccount: async(req,res)=>{
-        const account_id = req.params.account_id;
-        const carts = await cartModel.find({account_id, is_order: true});
-        const orders = [];
-        
-        for(let cart of carts){
-            const order = await orderModel.findOne({
-                cart_id: cart._id
-            }).populate({
-                path: "cart_id",
-                populate: [
-                    {
-                        path: "account_id"
-                    },
-                    {
-                        path: "items.food"
-                    }
-                ]
-            });
-            orders.push(order);
-        }
-        return res.status(200).json(orders);
-
+      return res.status(201).json(order);
+    } catch (error) {
+      console.error("Error creating order:", error);
+      return res.status(500).json({ message: "Lỗi server khi tạo đơn hàng." });
     }
-}
+  },
+
+  // Lấy danh sách đơn hàng theo filter
+  getOrder: async (req, res) => {
+    try {
+      const { customer, address, phone, status } = req.query;
+      const query = {};
+
+      if (customer) query.customer = { $regex: customer, $options: "i" };
+      if (address) query.address = { $regex: address, $options: "i" };
+      if (phone) query.phone = phone;
+      if (status) query.status = status;
+
+      const orders = await orderModel.find(query).sort({ createdAt: -1 }).limit(20);
+
+      return res.status(200).json(orders);
+    } catch (error) {
+      console.error("Lỗi getOrder:", error);
+      return res.status(500).json({ message: "Lỗi server khi lấy đơn hàng." });
+    }
+  },
+
+  // Lấy đơn hàng theo account
+  getOrderByAccount: async (req, res) => {
+    try {
+      const account_id = req.params.account_id;
+
+      const orders = await orderModel.find({ account_id }).sort({ createdAt: -1 });
+
+      return res.status(200).json(orders);
+    } catch (err) {
+      console.error("Lỗi getOrderByAccount:", err);
+      return res.status(500).json({ message: "Lỗi khi lấy đơn hàng." });
+    }
+  },
+
+  // ✅ Cập nhật trạng thái đơn hàng
+  updateOrderStatus: async (req, res) => {
+    try {
+      const { id } = req.params;
+      const { status } = req.body;
+
+      if (!status) {
+        return res.status(400).json({ message: "Thiếu trạng thái mới." });
+      }
+
+      const updated = await orderModel.findByIdAndUpdate(
+        id,
+        { status },
+        { new: true }
+      );
+
+      if (!updated) {
+        return res.status(404).json({ message: "Không tìm thấy đơn hàng." });
+      }
+
+      return res.status(200).json(updated);
+    } catch (err) {
+      console.error("Lỗi updateOrderStatus:", err);
+      return res.status(500).json({ message: "Lỗi khi cập nhật trạng thái." });
+    }
+  },
+};

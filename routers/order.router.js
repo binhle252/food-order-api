@@ -7,13 +7,17 @@ const {
     getOrderByAccount
 } = require("../controllers/order.controller");
 
+const orderController = require("../controllers/order.controller");
+
 router
     .route("/")
     .get(getOrder)
     .post(createOrder);
     
-router 
-    .route("/:account_id")
-    .get(getOrderByAccount);
+router
+    .route("/account/:account_id")
+    .get(getOrderByAccount); 
+
+router.put("/order/:id/status", orderController.updateOrderStatus);
 
 module.exports = router;
