@@ -18,6 +18,6 @@ router
     .route("/account/:account_id")
     .get(getOrderByAccount); 
 
-router.put("/order/:id/status", orderController.updateOrderStatus);
+router.put("/:id/status", orderController.updateOrderStatus);
 
 module.exports = router;
