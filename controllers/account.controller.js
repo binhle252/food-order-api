@@ -101,4 +101,18 @@ const updateProfile = async (req, res) => {
   }
 };
 
+updateProfile: async (req, res) => {
+    try {
+      const { username, phone, address } = req.body;
+      const updated = await accountModel.findByIdAndUpdate(
+        req.user.id,
+        { username, phone, address },
+        { new: true }
+      );
+      res.json(updated);
+    } catch (err) {
+      res.status(500).json({ message: "Lỗi khi cập nhật thông tin người dùng" });
+    }
+  };
+
 module.exports = { register, login, getAccounts, getProfile, updateProfile };
