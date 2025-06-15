@@ -3,6 +3,7 @@ const foodRouter = require("./food.router");
 const accountRouter = require("./account.router");
 const cartRouter = require("./cart.router");
 const orderRouter = require("./order.router");
+const commentRouter = require("./comment.route");
 
 module.exports = (app) => {
   app.use("/api/categories", categoryRouter);
@@ -10,4 +11,5 @@ module.exports = (app) => {
   app.use("/api/accounts", accountRouter);
   app.use("/api/cart", cartRouter);
   app.use("/api/order", orderRouter);
+  app.use("/api/comments", commentRouter);
 };
