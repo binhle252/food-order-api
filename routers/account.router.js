@@ -20,13 +20,12 @@ const {
 router.post("/register", register);
 router.post("/login", login);
 
-// Dành cho admin
-router.get("/", authenticateToken, authorizeRole(["admin"]), getAccounts);
-router.get("/:id", authenticateToken, authorizeRole(["admin"]), getAccountById); // 👈 Route lấy chi tiết tài khoản
-
-
 // Dành cho user và admin
 router.get("/profile", authenticateToken, authorizeRole(["admin", "user"]), getProfile);
-router.put("/profile", authenticateToken, authorizeRole(["admin", "user"]), updateProfile); // ⚠️ Dòng này là nguyên nhân lỗi nếu thiếu updateProfile
+router.put("/profile", authenticateToken, authorizeRole(["admin", "user"]), updateProfile);
+
+// Dành cho admin
+router.get("/", authenticateToken, authorizeRole(["admin"]), getAccounts);
+router.get("/:id", authenticateToken, authorizeRole(["admin", "user"]), getAccountById); // 👈 Đặt sau cùng
 
 module.exports = router;
