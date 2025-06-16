@@ -101,18 +101,16 @@ const updateProfile = async (req, res) => {
   }
 };
 
-updateProfile: async (req, res) => {
-    try {
-      const { username, phone, address } = req.body;
-      const updated = await accountModel.findByIdAndUpdate(
-        req.user.id,
-        { username, phone, address },
-        { new: true }
-      );
-      res.json(updated);
-    } catch (err) {
-      res.status(500).json({ message: "Lỗi khi cập nhật thông tin người dùng" });
-    }
-  };
+const getAccountById = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const account = await accountModel.findById(id).select("-password");
+    if (!account) return res.status(404).json({ message: "Không tìm thấy tài khoản" });
 
-module.exports = { register, login, getAccounts, getProfile, updateProfile };
+    res.status(200).json({ message: "Lấy chi tiết tài khoản thành công", data: account });
+  } catch (error) {
+    res.status(500).json({ message: "Lỗi server", error: error.message });
+  }
+};
+
+module.exports = { register, login, getAccounts, getProfile, updateProfile, getAccountById };

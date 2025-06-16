@@ -1,9 +1,26 @@
 const express = require("express");
 const router = express.Router();
-const { createComment, getCommentsByFood } = require("../controllers/comment.controller");
-const { authenticateToken } = require("../middlewares/auth.middleware");
+const {
+  createComment,
+  getCommentsByFood,
+  getAllComments,
+  deleteComment,
+} = require("../controllers/comment.controller");
+const {
+  authenticateToken,
+  authorizeRole,
+} = require("../middlewares/auth.middleware");
 
-router.post("/", authenticateToken, createComment); // tạo bình luận
-router.get("/:foodId", getCommentsByFood); // lấy tất cả bình luận theo món ăn
+// Admin lấy tất cả bình luận
+router.get("/", authenticateToken, authorizeRole(["admin"]), getAllComments);
+
+// Tạo bình luận mới (user)
+router.post("/", authenticateToken, createComment);
+
+// Lấy bình luận theo món ăn
+router.get("/:foodId", getCommentsByFood);
+
+// Xóa bình luận
+router.delete("/:id", authenticateToken, authorizeRole(["admin"]), deleteComment);
 
 module.exports = router;

@@ -7,7 +7,8 @@ const {
   login,
   getAccounts,
   getProfile,
-  updateProfile, // thêm ở đây
+  updateProfile,
+  getAccountById, // thêm ở đây
 } = require("../controllers/account.controller");
 
 const {
@@ -21,6 +22,8 @@ router.post("/login", login);
 
 // Dành cho admin
 router.get("/", authenticateToken, authorizeRole(["admin"]), getAccounts);
+router.get("/:id", authenticateToken, authorizeRole(["admin"]), getAccountById); // 👈 Route lấy chi tiết tài khoản
+
 
 // Dành cho user và admin
 router.get("/profile", authenticateToken, authorizeRole(["admin", "user"]), getProfile);

@@ -1,7 +1,6 @@
 const commentModel = require("../models/comment.model");
-const Account = require("../models/account.model"); // hoặc đường dẫn đúng tới file account.model.js
 
-
+// Tạo bình luận (đã có)
 const createComment = async (req, res) => {
   try {
     const { foodId, content } = req.body;
@@ -11,7 +10,7 @@ const createComment = async (req, res) => {
     }
 
     const newComment = await commentModel.create({
-      food: foodId,        // đúng: truyền id đơn lẻ, không phải object
+      food: foodId,
       user: req.user.id,
       content,
     });
@@ -24,7 +23,7 @@ const createComment = async (req, res) => {
   }
 };
 
-
+// Lấy bình luận theo foodId (đã có)
 const getCommentsByFood = async (req, res) => {
   try {
     const { foodId } = req.params;
@@ -39,4 +38,41 @@ const getCommentsByFood = async (req, res) => {
   }
 };
 
-module.exports = { createComment, getCommentsByFood };
+// 🆕 Lấy tất cả bình luận (dành cho admin)
+const getAllComments = async (req, res) => {
+  try {
+    const comments = await commentModel.find()
+      .populate("user", "username") // chỉ lấy trường "username" từ user
+      .populate("food", "name")     // chỉ lấy trường "name" từ food
+      .sort({ createdAt: -1 });
+
+    res.status(200).json({ data: comments });
+  } catch (err) {
+    console.error("❌ Lỗi khi lấy tất cả bình luận:", err);
+    res.status(500).json({ message: "Lỗi khi lấy bình luận", error: err.message });
+  }
+};
+
+// 🆕 Xóa bình luận theo ID
+const deleteComment = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const deleted = await commentModel.findByIdAndDelete(id);
+    if (!deleted) {
+      return res.status(404).json({ message: "Không tìm thấy bình luận để xóa" });
+    }
+
+    res.status(200).json({ message: "Xóa bình luận thành công" });
+  } catch (err) {
+    console.error("❌ Lỗi khi xóa bình luận:", err);
+    res.status(500).json({ message: "Lỗi server", error: err.message });
+  }
+};
+
+module.exports = {
+  createComment,
+  getCommentsByFood,
+  getAllComments,     // ✅ export thêm
+  deleteComment       // ✅ export thêm
+};
