@@ -22,10 +22,17 @@ const register = async (req, res) => {
 
     return res.status(201).json({
       message: "Đăng ký thành công",
-      data: { username: newAccount.username, phone, address, role: newAccount.role },
+      data: {
+        username: newAccount.username,
+        phone,
+        address,
+        role: newAccount.role,
+      },
     });
   } catch (error) {
-    return res.status(500).json({ message: "Lỗi server", error: error.message });
+    return res
+      .status(500)
+      .json({ message: "Lỗi server", error: error.message });
   }
 };
 
@@ -34,10 +41,12 @@ const login = async (req, res) => {
     const { username, password } = req.body;
 
     const account = await accountModel.findOne({ username });
-    if (!account) return res.status(400).json({ message: "Tài khoản không tồn tại" });
+    if (!account)
+      return res.status(400).json({ message: "Tài khoản không tồn tại" });
 
     const isMatch = await bcrypt.compare(password, account.password);
-    if (!isMatch) return res.status(400).json({ message: "Mật khẩu không đúng" });
+    if (!isMatch)
+      return res.status(400).json({ message: "Mật khẩu không đúng" });
 
     const token = jwt.sign(
       { id: account._id, username: account.username, role: account.role },
@@ -50,7 +59,9 @@ const login = async (req, res) => {
       data: { username: account.username, role: account.role, token },
     });
   } catch (error) {
-    return res.status(500).json({ message: "Lỗi server", error: error.message });
+    return res
+      .status(500)
+      .json({ message: "Lỗi server", error: error.message });
   }
 };
 
@@ -62,21 +73,28 @@ const getAccounts = async (req, res) => {
       data: accounts,
     });
   } catch (error) {
-    return res.status(500).json({ message: "Lỗi server", error: error.message });
+    return res
+      .status(500)
+      .json({ message: "Lỗi server", error: error.message });
   }
 };
 
 const getProfile = async (req, res) => {
   try {
-    const account = await accountModel.findById(req.user.id).select("-password");
-    if (!account) return res.status(404).json({ message: "Tài khoản không tồn tại" });
+    const account = await accountModel
+      .findById(req.user.id)
+      .select("-password");
+    if (!account)
+      return res.status(404).json({ message: "Tài khoản không tồn tại" });
 
     return res.status(200).json({
       message: "Lấy thông tin cá nhân thành công",
       data: account,
     });
   } catch (error) {
-    return res.status(500).json({ message: "Lỗi server", error: error.message });
+    return res
+      .status(500)
+      .json({ message: "Lỗi server", error: error.message });
   }
 };
 
@@ -97,7 +115,9 @@ const updateProfile = async (req, res) => {
       data: updatedAccount,
     });
   } catch (error) {
-    return res.status(500).json({ message: "Lỗi server", error: error.message });
+    return res
+      .status(500)
+      .json({ message: "Lỗi server", error: error.message });
   }
 };
 
@@ -105,12 +125,22 @@ const getAccountById = async (req, res) => {
   try {
     const { id } = req.params;
     const account = await accountModel.findById(id).select("-password");
-    if (!account) return res.status(404).json({ message: "Không tìm thấy tài khoản" });
+    if (!account)
+      return res.status(404).json({ message: "Không tìm thấy tài khoản" });
 
-    res.status(200).json({ message: "Lấy chi tiết tài khoản thành công", data: account });
+    res
+      .status(200)
+      .json({ message: "Lấy chi tiết tài khoản thành công", data: account });
   } catch (error) {
     res.status(500).json({ message: "Lỗi server", error: error.message });
   }
 };
 
-module.exports = { register, login, getAccounts, getProfile, updateProfile, getAccountById };
+module.exports = {
+  register,
+  login,
+  getAccounts,
+  getProfile,
+  updateProfile,
+  getAccountById,
+};

@@ -16,8 +16,13 @@ const authenticateToken = (req, res, next) => {
     req.user = decoded;
     next();
   } catch (error) {
-    console.error("❌ [authenticateToken] Error verifying token:", error.message);
-    return res.status(403).json({ message: "Token không hợp lệ hoặc đã hết hạn" });
+    console.error(
+      "❌ [authenticateToken] Error verifying token:",
+      error.message
+    );
+    return res
+      .status(403)
+      .json({ message: "Token không hợp lệ hoặc đã hết hạn" });
   }
 };
 

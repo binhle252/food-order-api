@@ -21,6 +21,11 @@ router.post("/", authenticateToken, createComment);
 router.get("/:foodId", getCommentsByFood);
 
 // Xóa bình luận
-router.delete("/:id", authenticateToken, authorizeRole(["admin"]), deleteComment);
+router.delete(
+  "/:id",
+  authenticateToken,
+  authorizeRole(["admin"]),
+  deleteComment
+);
 
 module.exports = router;

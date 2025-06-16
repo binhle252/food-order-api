@@ -14,7 +14,9 @@ module.exports = {
       const cart = await cartModel.findById(cart_id).populate("items.food");
 
       if (!cart || cart.is_order) {
-        return res.status(400).json({ message: "Giỏ hàng không hợp lệ hoặc đã thanh toán." });
+        return res
+          .status(400)
+          .json({ message: "Giỏ hàng không hợp lệ hoặc đã thanh toán." });
       }
 
       const order = await orderModel.create({
@@ -57,7 +59,10 @@ module.exports = {
       if (phone) query.phone = phone;
       if (status) query.status = status;
 
-      const orders = await orderModel.find(query).sort({ createdAt: -1 }).limit(20);
+      const orders = await orderModel
+        .find(query)
+        .sort({ createdAt: -1 })
+        .limit(20);
 
       return res.status(200).json(orders);
     } catch (error) {
@@ -71,7 +76,9 @@ module.exports = {
     try {
       const account_id = req.params.account_id;
 
-      const orders = await orderModel.find({ account_id }).sort({ createdAt: -1 });
+      const orders = await orderModel
+        .find({ account_id })
+        .sort({ createdAt: -1 });
 
       return res.status(200).json(orders);
     } catch (err) {
@@ -82,24 +89,26 @@ module.exports = {
 
   // ✅ Cập nhật trạng thái đơn hàng
   updateOrderStatus: async (req, res) => {
-  try {
-    const { id } = req.params;
-    const { status } = req.body;
+    try {
+      const { id } = req.params;
+      const { status } = req.body;
 
-    const updated = await orderModel.findByIdAndUpdate(
-      id,
-      { status },
-      { new: true }
-    );
+      const updated = await orderModel.findByIdAndUpdate(
+        id,
+        { status },
+        { new: true }
+      );
 
-    if (!updated) {
-      return res.status(404).json({ message: "Không tìm thấy đơn hàng." });
+      if (!updated) {
+        return res.status(404).json({ message: "Không tìm thấy đơn hàng." });
+      }
+
+      return res.status(200).json(updated);
+    } catch (error) {
+      console.error("Lỗi cập nhật trạng thái:", error);
+      return res
+        .status(500)
+        .json({ message: "Lỗi server khi cập nhật trạng thái." });
     }
-
-    return res.status(200).json(updated);
-  } catch (error) {
-    console.error("Lỗi cập nhật trạng thái:", error);
-    return res.status(500).json({ message: "Lỗi server khi cập nhật trạng thái." });
-  }
-},
+  },
 };

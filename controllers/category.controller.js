@@ -15,7 +15,9 @@ module.exports = {
       return res.status(201).json(newCategory);
     } catch (error) {
       console.error("Lỗi khi tạo danh mục:", error);
-      return res.status(500).json({ message: "Lỗi server", error: error.message });
+      return res
+        .status(500)
+        .json({ message: "Lỗi server", error: error.message });
     }
   },
 
@@ -25,7 +27,9 @@ module.exports = {
       return res.status(200).json(category);
     } catch (error) {
       console.error("Lỗi khi lấy danh sách danh mục:", error);
-      return res.status(500).json({ message: "Lỗi server", error: error.message });
+      return res
+        .status(500)
+        .json({ message: "Lỗi server", error: error.message });
     }
   },
 
@@ -40,11 +44,17 @@ module.exports = {
       };
       if (img) updateData.img = img;
 
-      const updateCategory = await categoryModel.findByIdAndUpdate(id, updateData, { new: true });
+      const updateCategory = await categoryModel.findByIdAndUpdate(
+        id,
+        updateData,
+        { new: true }
+      );
       return res.status(200).json(updateCategory);
     } catch (error) {
       console.error("Lỗi khi cập nhật danh mục:", error);
-      return res.status(500).json({ message: "Lỗi server", error: error.message });
+      return res
+        .status(500)
+        .json({ message: "Lỗi server", error: error.message });
     }
   },
 
@@ -55,7 +65,9 @@ module.exports = {
       return res.status(200).json(deleteCategory);
     } catch (error) {
       console.error("Lỗi khi xoá danh mục:", error);
-      return res.status(500).json({ message: "Lỗi server", error: error.message });
+      return res
+        .status(500)
+        .json({ message: "Lỗi server", error: error.message });
     }
   },
 };

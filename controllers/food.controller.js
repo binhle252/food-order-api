@@ -1,4 +1,3 @@
-
 const foodModel = require("../models/food.model");
 
 module.exports = {
@@ -17,7 +16,9 @@ module.exports = {
       return res.status(201).json(newFood);
     } catch (error) {
       console.error("Lỗi khi tạo món ăn:", error);
-      return res.status(500).json({ message: "Lỗi server", error: error.message });
+      return res
+        .status(500)
+        .json({ message: "Lỗi server", error: error.message });
     }
   },
   getFood: async (req, res) => {
@@ -31,7 +32,9 @@ module.exports = {
       return res.status(200).json(food);
     } catch (error) {
       console.error("Lỗi khi lấy danh sách món ăn:", error);
-      return res.status(500).json({ message: "Lỗi server", error: error.message });
+      return res
+        .status(500)
+        .json({ message: "Lỗi server", error: error.message });
     }
   },
   getFoodDetail: async (req, res) => {
@@ -44,7 +47,9 @@ module.exports = {
       return res.status(200).json(food);
     } catch (error) {
       console.error("Error fetching food detail:", error);
-      return res.status(500).json({ message: "Failed to fetch food detail", error: error.message });
+      return res
+        .status(500)
+        .json({ message: "Failed to fetch food detail", error: error.message });
     }
   },
   updateFood: async (req, res) => {
@@ -59,14 +64,18 @@ module.exports = {
       };
       if (img) updateData.img = img;
 
-      const updatedFood = await foodModel.findByIdAndUpdate(id, updateData, { new: true }).populate("category_id");
+      const updatedFood = await foodModel
+        .findByIdAndUpdate(id, updateData, { new: true })
+        .populate("category_id");
       if (!updatedFood) {
         return res.status(404).json({ message: "Food not found" });
       }
       return res.status(200).json(updatedFood);
     } catch (error) {
       console.error("Lỗi khi cập nhật món ăn:", error);
-      return res.status(500).json({ message: "Lỗi server", error: error.message });
+      return res
+        .status(500)
+        .json({ message: "Lỗi server", error: error.message });
     }
   },
   deleteFood: async (req, res) => {
@@ -79,7 +88,9 @@ module.exports = {
       return res.status(200).json(deletedFood);
     } catch (error) {
       console.error("Lỗi khi xóa món ăn:", error);
-      return res.status(500).json({ message: "Lỗi server", error: error.message });
+      return res
+        .status(500)
+        .json({ message: "Lỗi server", error: error.message });
     }
   },
 };

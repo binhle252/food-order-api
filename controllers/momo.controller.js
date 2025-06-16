@@ -1,11 +1,8 @@
-const https = require('https');
-const crypto = require('crypto');
+const https = require("https");
+const crypto = require("crypto");
 
 exports.createMomoPayment = (req, res) => {
-  const {
-    amount = '50000',
-    orderInfo = 'Thanh toán đơn hàng',
-  } = req.body;
+  const { amount = "50000", orderInfo = "Thanh toán đơn hàng" } = req.body;
 
   const partnerCode = process.env.MOMO_PARTNER_CODE;
   const accessKey = process.env.MOMO_ACCESS_KEY;
@@ -16,15 +13,16 @@ exports.createMomoPayment = (req, res) => {
   const orderId = partnerCode + new Date().getTime();
   const requestId = orderId;
   const requestType = "captureWallet";
-  const extraData = ''; // optional
+  const extraData = ""; // optional
 
   // Raw signature
   const rawSignature = `accessKey=${accessKey}&amount=${amount}&extraData=${extraData}&ipnUrl=${ipnUrl}&orderId=${orderId}&orderInfo=${orderInfo}&partnerCode=${partnerCode}&redirectUrl=${redirectUrl}&requestId=${requestId}&requestType=${requestType}`;
 
   // HMAC SHA256
-  const signature = crypto.createHmac('sha256', secretKey)
+  const signature = crypto
+    .createHmac("sha256", secretKey)
     .update(rawSignature)
-    .digest('hex');
+    .digest("hex");
 
   const requestBody = JSON.stringify({
     partnerCode,
@@ -36,35 +34,35 @@ exports.createMomoPayment = (req, res) => {
     orderInfo,
     redirectUrl,
     ipnUrl,
-    lang: 'vi',
+    lang: "vi",
     requestType,
     autoCapture: true,
     extraData,
-    signature
+    signature,
   });
 
   const options = {
-    hostname: 'test-payment.momo.vn',
+    hostname: "test-payment.momo.vn",
     port: 443,
-    path: '/v2/gateway/api/create',
-    method: 'POST',
+    path: "/v2/gateway/api/create",
+    method: "POST",
     headers: {
-      'Content-Type': 'application/json',
-      'Content-Length': Buffer.byteLength(requestBody)
-    }
+      "Content-Type": "application/json",
+      "Content-Length": Buffer.byteLength(requestBody),
+    },
   };
 
-  const momoReq = https.request(options, momoRes => {
-    let data = '';
-    momoRes.on('data', chunk => (data += chunk));
-    momoRes.on('end', () => {
+  const momoReq = https.request(options, (momoRes) => {
+    let data = "";
+    momoRes.on("data", (chunk) => (data += chunk));
+    momoRes.on("end", () => {
       const response = JSON.parse(data);
       res.json({ payUrl: response.payUrl });
     });
   });
 
-  momoReq.on('error', e => {
-    res.status(500).json({ message: 'Lỗi khi gọi MoMo', error: e.message });
+  momoReq.on("error", (e) => {
+    res.status(500).json({ message: "Lỗi khi gọi MoMo", error: e.message });
   });
 
   momoReq.write(requestBody);

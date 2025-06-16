@@ -19,7 +19,9 @@ const createComment = async (req, res) => {
     res.status(201).json(populatedComment);
   } catch (err) {
     console.error("❌ Lỗi khi tạo bình luận:", err);
-    res.status(500).json({ message: "Lỗi khi tạo bình luận", error: err.message });
+    res
+      .status(500)
+      .json({ message: "Lỗi khi tạo bình luận", error: err.message });
   }
 };
 
@@ -28,28 +30,34 @@ const getCommentsByFood = async (req, res) => {
   try {
     const { foodId } = req.params;
 
-    const comments = await commentModel.find({ food: foodId })
+    const comments = await commentModel
+      .find({ food: foodId })
       .populate("user", "username")
       .sort({ createdAt: -1 });
 
     res.status(200).json(comments);
   } catch (err) {
-    res.status(500).json({ message: "Lỗi khi lấy bình luận", error: err.message });
+    res
+      .status(500)
+      .json({ message: "Lỗi khi lấy bình luận", error: err.message });
   }
 };
 
 // 🆕 Lấy tất cả bình luận (dành cho admin)
 const getAllComments = async (req, res) => {
   try {
-    const comments = await commentModel.find()
+    const comments = await commentModel
+      .find()
       .populate("user", "username") // chỉ lấy trường "username" từ user
-      .populate("food", "name")     // chỉ lấy trường "name" từ food
+      .populate("food", "name") // chỉ lấy trường "name" từ food
       .sort({ createdAt: -1 });
 
     res.status(200).json({ data: comments });
   } catch (err) {
     console.error("❌ Lỗi khi lấy tất cả bình luận:", err);
-    res.status(500).json({ message: "Lỗi khi lấy bình luận", error: err.message });
+    res
+      .status(500)
+      .json({ message: "Lỗi khi lấy bình luận", error: err.message });
   }
 };
 
@@ -60,7 +68,9 @@ const deleteComment = async (req, res) => {
 
     const deleted = await commentModel.findByIdAndDelete(id);
     if (!deleted) {
-      return res.status(404).json({ message: "Không tìm thấy bình luận để xóa" });
+      return res
+        .status(404)
+        .json({ message: "Không tìm thấy bình luận để xóa" });
     }
 
     res.status(200).json({ message: "Xóa bình luận thành công" });
@@ -73,6 +83,6 @@ const deleteComment = async (req, res) => {
 module.exports = {
   createComment,
   getCommentsByFood,
-  getAllComments,     // ✅ export thêm
-  deleteComment       // ✅ export thêm
+  getAllComments, // ✅ export thêm
+  deleteComment, // ✅ export thêm
 };
