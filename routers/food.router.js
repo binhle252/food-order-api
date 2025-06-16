@@ -30,9 +30,9 @@ router
     .get(getFood);
 
 router
-    .route("/:id")
-    .get(getFoodDetail) // Thêm route để lấy chi tiết món ăn
-    .put(updateFood) // Thay patch bằng put cho nhất quán với findByIdAndUpdate
-    .delete(deleteFood);
+  .route("/:id")
+  .get(getFoodDetail)
+  .put(upload.single("img"), updateFood) // ✅ THÊM middleware này
+  .delete(deleteFood);
 
 module.exports = router;
