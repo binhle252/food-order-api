@@ -3,6 +3,7 @@ const cors = require("cors");
 const connectDB = require("./configs/database");
 const router = require("./routers");
 require("dotenv").config();
+const path = require("path");
 
 const app = express();
 
@@ -10,7 +11,7 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-
+app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
 // Kết nối MongoDB
 connectDB();
